@@ -7,6 +7,16 @@ data "aws_vpc" "existing" {
   id = "vpc-07ec39ca6a3c2d055"
 }
 
+# Retrieve the subnets in the existing VPC
+data "aws_subnet_ids" "existing" {
+  vpc_id = data.aws_vpc.existing.id
+}
+
+# Retrieve details of the first subnet
+data "aws_subnet" "first" {
+  id = data.aws_subnet_ids.existing.ids[0]
+}
+
 # Create security group with firewall rules
 resource "aws_security_group" "jenkins-sg-2022" {
   name        = var.security_group
@@ -45,7 +55,7 @@ resource "aws_instance" "myFirstInstance" {
   key_name                 = var.key_name
   instance_type            = var.instance_type
   vpc_security_group_ids   = [aws_security_group.jenkins-sg-2022.id]
-  subnet_id                = data.aws_vpc.existing.subnet_ids[0]  # Ensure there are subnets available in the existing VPC
+  subnet_id                = data.aws_subnet.first.id
   tags = {
     Name = var.tag_name
   }
@@ -58,11 +68,6 @@ resource "aws_eip" "myFirstInstance" {
   tags = {
     Name = "my_elastic_ip"
   }
-}
-
-# Ensure that there is at least one subnet in the VPC
-data "aws_subnet_ids" "existing" {
-  vpc_id = data.aws_vpc.existing.id
 }
 
 output "subnet_ids" {
