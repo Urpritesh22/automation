@@ -2,18 +2,16 @@ provider "aws" {
   region = var.aws_region
 }
 
-resource "aws_vpc" "main" {
-  cidr_block = "172.16.0.0/16"
-  instance_tenancy = "default"
-  tags = {
-    Name = "main"
-  }
+# Use existing VPC
+data "aws_vpc" "existing" {
+  id = "vpc-07ec39ca6a3c2d055"
 }
 
-#Create security group with firewall rules
+# Create security group with firewall rules
 resource "aws_security_group" "jenkins-sg-2022" {
   name        = var.security_group
-  description = "security group for Ec2 instance"
+  description = "security group for EC2 instance"
+  vpc_id      = data.aws_vpc.existing.id
 
   ingress {
     from_port   = 8080
@@ -22,14 +20,14 @@ resource "aws_security_group" "jenkins-sg-2022" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
- ingress {
+  ingress {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
- # outbound from jenkis server
+  # outbound from Jenkins server
   egress {
     from_port   = 0
     to_port     = 65535
@@ -37,17 +35,18 @@ resource "aws_security_group" "jenkins-sg-2022" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags= {
+  tags = {
     Name = var.security_group
   }
 }
 
 resource "aws_instance" "myFirstInstance" {
-  ami           = var.ami_id
-  key_name = var.key_name
-  instance_type = var.instance_type
-  vpc_security_group_ids = [aws_security_group.jenkins-sg-2022.id]
-  tags= {
+  ami                      = var.ami_id
+  key_name                 = var.key_name
+  instance_type            = var.instance_type
+  vpc_security_group_ids   = [aws_security_group.jenkins-sg-2022.id]
+  subnet_id                = data.aws_vpc.existing.subnet_ids[0]  # Ensure there are subnets available in the existing VPC
+  tags = {
     Name = var.tag_name
   }
 }
@@ -56,7 +55,16 @@ resource "aws_instance" "myFirstInstance" {
 resource "aws_eip" "myFirstInstance" {
   vpc      = true
   instance = aws_instance.myFirstInstance.id
-tags= {
+  tags = {
     Name = "my_elastic_ip"
   }
+}
+
+# Ensure that there is at least one subnet in the VPC
+data "aws_subnet_ids" "existing" {
+  vpc_id = data.aws_vpc.existing.id
+}
+
+output "subnet_ids" {
+  value = data.aws_subnet_ids.existing.ids
 }
