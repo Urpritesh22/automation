@@ -38,11 +38,13 @@ resource "aws_s3_bucket_versioning" "example_bucket_versioning" {
 # Create a DynamoDB table
 resource "aws_dynamodb_table" "my_dynamodb_table" {
   name           = "my-dynamodb-table1"
-  billing_mode   = "PAY_PER_REQUEST"  # Use on-demand billing mode
+  billing_mode   = "PAY_PER_REQUEST"  # Set billing mode to On-Demand
+
   hash_key       = "LockID"
 
   attribute {
     name = "LockID"
+    type = "S"
   }
 
   tags = {
