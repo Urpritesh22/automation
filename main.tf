@@ -33,6 +33,23 @@ resource "aws_s3_bucket_versioning" "example_bucket_versioning" {
     status = "Enabled"
   }
 }
+########
+
+# Create a DynamoDB table
+resource "aws_dynamodb_table" "my_dynamodb_table" {
+  name           = "my-dynamodb-table1"
+  billing_mode   = "PAY_PER_REQUEST"  # Use on-demand billing mode
+  hash_key       = "LockID"
+
+  attribute {
+    name = "LockID"
+  }
+
+  tags = {
+    Name        = "my-dynamodb-table1"
+    Environment = "Dev"
+  }
+}
 #Create security group with firewall rules
 resource "aws_security_group" "jenkins-sg-2022" {
   name        = var.security_group
