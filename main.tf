@@ -27,7 +27,7 @@ resource "aws_s3_bucket" "example_bucket" {
 
 # Enable versioning for the S3 bucket
 resource "aws_s3_bucket_versioning" "example_bucket_versioning" {
-  bucket = aws_s3_bucket.example_bucket.id
+  bucket = mydev-tf-state-bucket-project-terraform-pritesh-1234.id
 
   versioning_configuration {
     status = "Enabled"
