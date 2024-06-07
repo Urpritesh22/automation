@@ -9,7 +9,30 @@ resource "aws_vpc" "main" {
     Name = "main"
   }
 }
+#creating bucket 
+# Define the AWS provider
+provider "aws" {
+  region = "us-west-2"  # Change this to your desired region
+}
 
+# Create an S3 bucket
+resource "aws_s3_bucket" "example_bucket" {
+  bucket = "mydev-tf-state-bucket-project-terraform-pritesh-1234"  # Change this to your desired bucket name
+  acl    = "private"  # Set the Access Control List (ACL) policy to private
+
+  tags = {
+    Name        = "bucket-pritesh"
+  }
+}
+
+# Enable versioning for the S3 bucket
+resource "aws_s3_bucket_versioning" "example_bucket_versioning" {
+  bucket = aws_s3_bucket.example_bucket.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
 #Create security group with firewall rules
 resource "aws_security_group" "jenkins-sg-2022" {
   name        = var.security_group
