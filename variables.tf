@@ -49,3 +49,12 @@ variable "tags" {
         terraform   = "true"
     }
 }
+variable "dynamodb_name" {
+    default = "my-dynamodb-table1"
+  
+}
+variable "hash_key" {
+    default = "LockID"
+    type = string
+  
+}
